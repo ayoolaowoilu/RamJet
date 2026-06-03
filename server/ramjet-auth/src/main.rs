@@ -1,5 +1,5 @@
 use axum::{ Router, routing::{ post}};
-
+mod lib;
 use crate::routes::auth::{login_fn, register_fn};
 use sqlx::MySqlPool;
 mod routes;

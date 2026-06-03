@@ -9,10 +9,10 @@ use argon2::{
     },
 };
 
-use crate::types::user_type::{
+use crate::{lib::jwt::create_jwt, types::user_type::{
     UserLoginRequest,
     UserLoginResponse, UserRegisterRequest,
-};
+}};
 
 pub async fn login_fn(
     State(pool): State<MySqlPool>,
@@ -50,7 +50,7 @@ pub async fn login_fn(
             }
 
          
-            let token = "rk_live_eater";
+            let token = create_jwt(&user.id.to_string());
 
             Json(UserLoginResponse {
                 message: "Login successful".into(),
@@ -102,7 +102,7 @@ pub async fn register_fn(
         .await
         .expect("Failed to insert user");
 
-        let token = "rk_live_eater";
+        let token = create_jwt(&user.id.to_string());
 
         Json(UserLoginResponse {
             message: "Registration successful".into(),
