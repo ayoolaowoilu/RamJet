@@ -40,14 +40,16 @@ pub struct UserUpdateRequest{
     pub email:Option<String>,
     pub name:Option<String>,
     pub password:Option<String>,
+    pub id:u32
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserUpdateResponse{
     pub message:String,
     pub status_code:u16,
-    pub user:User,
+    pub user:Option<User>
 }
+
 
 
 

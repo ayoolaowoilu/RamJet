@@ -1,3 +1,5 @@
+use std::ptr::null;
+
 use axum::{extract::State, Json};
 use sqlx::MySqlPool;
 
@@ -10,7 +12,7 @@ use argon2::{
 };
 
 use crate::{types::user_type::{
-    User, UserLoginRequest, UserLoginResponse, UserRegisterRequest
+    User, UserLoginRequest, UserLoginResponse, UserRegisterRequest, UserUpdateRequest, UserUpdateResponse
 }, utils::jwt::{create_jwt, decode_jwt}};
 
 pub async fn login_fn(
@@ -145,4 +147,37 @@ pub async fn get_user_details(
         created_at: user.created_at.to_string(),
         updated_at: user.updated_at.to_string(),
     })
+}
+
+
+pub async fn update_fn(
+  State(pool):State<MySqlPool>,
+  Json(payload): Json<UserUpdateRequest>
+)-> Json<UserUpdateResponse>{
+   let user = sqlx::query!("SELECT * FROM users WHERE id = ? " , payload.id )
+   .fetch_optional(&pool)
+   .await
+   .expect("An error occured");
+    
+    match user {
+       Some(user)=>{
+            
+       },
+       None => {
+           return Json(UserUpdateResponse
+             { message: String::from("This user dose not exist")
+              , status_code: 401,
+              user:User{
+                id:122,
+                password:String::new(),
+                name:String::new(),
+                email:String::new(),
+                created_at:String::new(),
+                updated_at:String::new(),
+                role:String::new()
+              }
+             }
+             )
+       }
+    }
 }
