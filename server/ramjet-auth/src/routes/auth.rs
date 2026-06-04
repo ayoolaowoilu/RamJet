@@ -3,17 +3,11 @@ use std::ptr::null;
 use axum::{extract::State, Json};
 use sqlx::MySqlPool;
 
-use argon2::{
-    Argon2, PasswordHash, PasswordVerifier, password_hash::{
-        rand_core::OsRng,
-        SaltString,
-        PasswordHasher,
-    },
-};
+
 
 use crate::{types::user_type::{
     User, UserLoginRequest, UserLoginResponse, UserRegisterRequest, UserUpdateRequest, UserUpdateResponse
-}, utils::jwt::{create_jwt, decode_jwt}};
+}, utils::{hasher::{hash_password, verify_password}, jwt::{create_jwt, decode_jwt}}};
 
 pub async fn login_fn(
     State(pool): State<MySqlPool>,
@@ -31,16 +25,7 @@ pub async fn login_fn(
     match user {
         Some(user) => {
             
-            let parsed_hash =
-                PasswordHash::new(user.password.as_str())
-                    .expect("Invalid password hash");
-
-            let is_valid = Argon2::default()
-                .verify_password(
-                    payload.password.as_bytes(),
-                    &parsed_hash,
-                )
-                .is_ok();
+            let is_valid = verify_password(payload.password.as_str(), user.password.as_str());
 
             if !is_valid {
                 return Json(UserLoginResponse {
@@ -85,12 +70,9 @@ pub async fn register_fn(
         token: String::new(),
      }),
      None => {
-      let salt = SaltString::generate(&mut OsRng);
+   
 
-        let password_hash = Argon2::default()
-        .hash_password(payload.password.as_bytes(), &salt)
-        .unwrap()
-        .to_string();
+        let password_hash =  hash_password(payload.password.as_str());
        
 
        let user_res  = sqlx::query!(
@@ -161,21 +143,30 @@ pub async fn update_fn(
     
     match user {
        Some(user)=>{
-            
+              
+                let updated_user = sqlx::query!(
+                    "UPDATE users SET email = ?, name = ?, password = ? WHERE id = ?",
+                    payload.email,
+                    payload.name,
+                    payload.password,
+                    payload.id
+                )
+                .execute(&pool)
+                .await
+                .expect("Failed to update user");
+
+              return Json(UserUpdateResponse
+             { message: String::from("User updated successfully")
+              , status_code: 200,
+              user:
+             }
+             )
        },
        None => {
            return Json(UserUpdateResponse
              { message: String::from("This user dose not exist")
               , status_code: 401,
-              user:User{
-                id:122,
-                password:String::new(),
-                name:String::new(),
-                email:String::new(),
-                created_at:String::new(),
-                updated_at:String::new(),
-                role:String::new()
-              }
+              user:None
              }
              )
        }
