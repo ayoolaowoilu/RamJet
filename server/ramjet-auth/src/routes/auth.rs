@@ -1,4 +1,3 @@
-use std::ptr::null;
 
 use axum::{extract::State, Json};
 use sqlx::MySqlPool;
@@ -136,29 +135,51 @@ pub async fn update_fn(
   State(pool):State<MySqlPool>,
   Json(payload): Json<UserUpdateRequest>
 )-> Json<UserUpdateResponse>{
+
+        let mut updated = String::new();
+       if payload.email.is_some() {
+                updated.push_str("email, ");
+            }
+            if payload.name.is_some() {
+                updated.push_str("name, ");
+            }
+             if updated.ends_with(", ") {
+                updated.truncate(updated.len() - 2);
+             }
+         
+
    let user = sqlx::query!("SELECT * FROM users WHERE id = ? " , payload.id )
    .fetch_optional(&pool)
    .await
-   .expect("An error occured");
-    
+   .expect("An error occurred");
+
     match user {
        Some(user)=>{
               
-                let updated_user = sqlx::query!(
-                    "UPDATE users SET email = ?, name = ?, password = ? WHERE id = ?",
+
+               sqlx::query!(
+                    "UPDATE users SET email = ?, name = ? WHERE id = ?",
                     payload.email,
                     payload.name,
-                    payload.password,
                     payload.id
                 )
                 .execute(&pool)
                 .await
                 .expect("Failed to update user");
-
+                
               return Json(UserUpdateResponse
              { message: String::from("User updated successfully")
               , status_code: 200,
-              user:
+              user:Some(User{
+                id: user.id as u32,
+                email: payload.email.clone().unwrap_or(user.email),
+                name: payload.name.clone().unwrap_or(user.name),
+                password: user.password,
+                role: user.role,
+                created_at: user.created_at.to_string(),
+                updated_at: user.updated_at.to_string(),
+              }),
+              updated:updated
              }
              )
        },
@@ -166,7 +187,8 @@ pub async fn update_fn(
            return Json(UserUpdateResponse
              { message: String::from("This user dose not exist")
               , status_code: 401,
-              user:None
+              user:None,
+              updated:updated
              }
              )
        }
