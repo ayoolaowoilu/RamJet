@@ -21,10 +21,10 @@ dotenv().ok();
   
 
 let app = Router::new()
-.route("/login", post(login_fn))
-.route("/register", post(register_fn,))
-.route("/profile", post(get_user_details))
-.route("/update",post(update_fn))
+.route("auth/login", post(login_fn))
+.route("auth/register", post(register_fn))
+.route("auth/profile", post(get_user_details))
+.route("auth/update", post(update_fn))
 .with_state(pool);
 
 
@@ -32,14 +32,16 @@ let app = Router::new()
     .await
     .unwrap();
 
+      println!(
+        "Server is running on http://{}",
+         String::from("localhost:5140")
+    );
+
     axum::serve(listener, app)
     .await
     .unwrap();
    
-    println!(
-        "Server is running on http://{}",
-         String::from("localhost:5140")
-    );
+
 
 
 }
