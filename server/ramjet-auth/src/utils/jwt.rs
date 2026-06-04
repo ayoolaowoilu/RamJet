@@ -1,3 +1,6 @@
+use std::env;
+use dotenvy::dotenv;
+
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
@@ -6,7 +9,14 @@ pub struct Claims {
     pub exp: usize, 
 }
 
-const SECRET: &[u8] = b"my_secret_key_123";
+
+fn jwt_secret() -> Vec<u8> {
+    dotenv().ok();
+
+    env::var("JWT_SECRET")
+        .expect("JWT_SECRET must be set")
+        .into_bytes()
+}
 
 
 use jsonwebtoken::{encode, EncodingKey, Header ,decode, DecodingKey, Validation };
@@ -26,7 +36,7 @@ pub fn create_jwt(user_id: &str) -> String {
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(SECRET),
+        &EncodingKey::from_secret(&jwt_secret()),
     )
     .expect("JWT creation failed")
 }
@@ -49,7 +59,7 @@ pub fn decode_jwt(token: &str) -> Option<Claims> {
 
     let result = decode::<Claims>(
         token,
-        &DecodingKey::from_secret(SECRET),
+        &DecodingKey::from_secret(&jwt_secret()),
         &validation,
     );
 
