@@ -1,6 +1,6 @@
 use axum::{ Router, routing::{ post}};
 
-use crate::routes::auth::{get_user_details, login_fn, register_fn};
+use crate::routes::auth::{get_user_details, login_fn, register_fn, update_fn};
 use sqlx::MySqlPool;
 mod routes;
 mod types;
@@ -24,7 +24,9 @@ let app = Router::new()
 .route("/login", post(login_fn))
 .route("/register", post(register_fn,))
 .route("/profile", post(get_user_details))
+.route("/update",post(update_fn))
 .with_state(pool);
+
 
   let listener = tokio::net::TcpListener::bind("0.0.0.0:5140")
     .await
