@@ -13,14 +13,6 @@ pub struct User{
   pub updated_at: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserResponse{
-    pub email:String,
-    pub name:String,
-    pub role:String,
-    pub created_at: String,
-    pub updated_at: String,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserLoginRequest{
@@ -35,17 +27,26 @@ pub struct UserRegisterRequest{
     pub password:String,
 }
 
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserLoginResponse{
+    pub message:String,
+    pub status_code:u16,
+    pub token:String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserUpdateRequest{ 
     pub email:Option<String>,
     pub name:Option<String>,
     pub password:Option<String>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginResponse{
+pub struct UserUpdateResponse{
     pub message:String,
     pub status_code:u16,
-    pub token:String,
+    pub user:User,
 }
 
 
