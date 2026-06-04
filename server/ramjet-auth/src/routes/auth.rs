@@ -9,10 +9,9 @@ use argon2::{
     },
 };
 
-use crate::{lib::jwt::create_jwt, types::user_type::{
-    UserLoginRequest,
-    UserLoginResponse, UserRegisterRequest,
-}};
+use crate::{types::user_type::{
+    User, UserLoginRequest, UserLoginResponse, UserRegisterRequest
+}, utils::jwt::{create_jwt, decode_jwt}};
 
 pub async fn login_fn(
     State(pool): State<MySqlPool>,
@@ -92,7 +91,7 @@ pub async fn register_fn(
         .to_string();
        
 
-        sqlx::query!(
+       let user_res  = sqlx::query!(
             "INSERT INTO users (email, name, password) VALUES (?, ?, ?)",
             payload.email,
             payload.name,
@@ -102,7 +101,7 @@ pub async fn register_fn(
         .await
         .expect("Failed to insert user");
 
-        let token = create_jwt(&user.id.to_string());
+        let token = create_jwt(&user_res.last_insert_id().to_string());
 
         Json(UserLoginResponse {
             message: "Registration successful".into(),
@@ -111,4 +110,39 @@ pub async fn register_fn(
         })
      }
   }
+}
+
+#[derive(serde::Deserialize)]
+pub struct TokenRequest {
+    pub token: String,
+}
+
+pub async fn get_user_details(
+    State(pool): State<MySqlPool>,
+    Json(payload): Json<TokenRequest>,
+) -> Json<User> {
+
+    let claims = decode_jwt(&payload.token)
+        .expect("Invalid token");
+
+    let user = sqlx::query!(
+        "SELECT id, email, name, password, role, created_at, updated_at
+         FROM users
+         WHERE id = ?",
+        claims.sub
+    )
+    .fetch_optional(&pool)
+    .await
+    .expect("Failed to fetch user")
+    .expect("User not found");
+
+    Json(User {
+        id: user.id as u32,
+        email: user.email,
+        name: user.name,
+        password: user.password,
+        role: user.role,
+        created_at: user.created_at.to_string(),
+        updated_at: user.updated_at.to_string(),
+    })
 }
