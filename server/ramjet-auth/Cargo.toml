@@ -17,6 +17,7 @@ sqlx = { version = "0.8", features = [
     "time"
 ] }
 dotenvy = "0.15"
-rand = "0.10.1"
+rand = "0.8"
 jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
 chrono = "0.4"
+hex = "0.4"

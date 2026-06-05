@@ -9,6 +9,7 @@ use std::env;
 use dotenvy::dotenv;
 
 
+
 #[tokio::main]
 async fn main() {
 dotenv().ok();
@@ -21,10 +22,10 @@ dotenv().ok();
   
 
 let app = Router::new()
-.route("auth/login", post(login_fn))
-.route("auth/register", post(register_fn))
-.route("auth/profile", post(get_user_details))
-.route("auth/update", post(update_fn))
+.route("/auth/login", post(login_fn))
+.route("/auth/register", post(register_fn))
+.route("/auth/profile", post(get_user_details))
+.route("/auth/update", post(update_fn))
 .with_state(pool);
 
 
