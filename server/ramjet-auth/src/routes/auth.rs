@@ -1,8 +1,6 @@
 
 use axum::{extract::State, Json};
-use sqlx::MySqlPool;
-
-
+use sqlx::{MySqlPool};
 
 use crate::{types::user_type::{
     User, UserLoginRequest, UserLoginResponse, UserRegisterRequest, UserUpdateRequest, UserUpdateResponse
@@ -132,6 +130,7 @@ pub async fn get_user_details(
 
 
 pub async fn update_fn(
+
   State(pool):State<MySqlPool>,
   Json(payload): Json<UserUpdateRequest>
 )-> Json<UserUpdateResponse>{
@@ -193,4 +192,46 @@ pub async fn update_fn(
              )
        }
     }
+}
+
+pub async fn delete_fn(
+    State(pool):State<MySqlPool>,
+    Json(payload):Json<UserUpdateRequest>
+)->Json<UserUpdateResponse>{
+   
+      let user = sqlx::query!("SELECT * FROM users WHERE id = ? " , payload.id )
+   .fetch_optional(&pool)
+   .await
+   .expect("An error occurred");
+
+   match user {
+       Some(user)=>{
+           sqlx::query!("DELETE FROM users WHERE id = ? ",payload.id)
+           .execute(&pool)
+           .await
+           .expect("Failed to delete data");
+
+          return Json(UserUpdateResponse {
+             message: String::from("deleted user data successfully")
+          , status_code: 200,
+           user:Some(User{
+                id:user.id as u32,
+                email:user.email,
+                name:user.name,
+                password:user.password,
+                role:user.role,
+                created_at:user.created_at.to_string(),
+                updated_at:user.updated_at.to_string()
+           }), 
+           updated:String::from("Deleted data") })
+       },
+       None => {
+             return Json(UserUpdateResponse { 
+            message: String::from("User not found")
+          , status_code: 404,
+           user:None, 
+           updated:String::from("Deleted data") })
+       }
+   }
+
 }
