@@ -1,7 +1,7 @@
 use axum::{Json, extract::State};
 use sqlx::MySqlPool;
 
-use crate::{types::keys_types::{CreateKeyRequest, DeleteKeyRequest, KeyResponse}, utils::key_gen::generate_random_key};
+use crate::{types::keys_types::{CreateKeyRequest, DeleteKeyRequest, KeyResponse, UpdateKeyStats}, utils::key_gen::generate_random_key};
 
 
 pub async fn generate_key(
@@ -59,3 +59,54 @@ pub async fn delete_key(
          }
     }
 }
+
+pub async fn update_key(
+     State(pool):State<MySqlPool>,
+     Json(payload):Json<UpdateKeyStats>
+) -> Json<KeyResponse>{
+
+     let key = sqlx::query!("SELECT * FROM secret_keys WHERE _key = ?",payload.token)
+  .fetch_optional(&pool)
+  .await
+  .expect("Error Deleting data");
+
+   match  key {
+        Some(_) => {
+  
+                 if payload.update_type == "activate" {
+                     sqlx::query!("UPDATE secret_keys SET is_active = ? WHERE _key = ?",1,payload.token)
+                     .execute(&pool)
+                     .await
+                     .expect("Failed to activate key");
+                 }else if payload.update_type == "deactivate" {
+                    sqlx::query!("UPDATE secret_keys SET is_active = ? WHERE _key = ?",0,payload.token)
+                     .execute(&pool)
+                     .await
+                     .expect("Failed to deactivate key");
+                 }else {
+                     sqlx::query!("UPDATE secret_keys SET plan = ? WHERE _key = ?",Some(payload.plan),payload.token)
+                     .execute(&pool)
+                     .await
+                     .expect("Failed to update plan");
+                 }
+
+                  
+          return Json(KeyResponse { 
+            message: String::from("Your key has been updated successfully"),
+           status_code: 200,
+            token: Some(payload.token) }
+        );       
+
+   },
+   None =>{
+       return Json(KeyResponse { 
+            message: String::from("Key not found"),
+           status_code: 404,
+            token: None }
+        );   
+   }
+    }
+
+   }
+
+

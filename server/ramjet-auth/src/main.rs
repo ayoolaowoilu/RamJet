@@ -1,6 +1,6 @@
 use axum::{ Router, routing::{ post}};
 
-use crate::routes::{auth::{get_user_details, login_fn, register_fn, update_fn}, keys::{delete_key, generate_key}};
+use crate::routes::{auth::{get_user_details, login_fn, register_fn, update_fn}, keys::{delete_key, generate_key, update_key}};
 use sqlx::MySqlPool;
 mod routes;
 mod types;
@@ -28,6 +28,7 @@ let app = Router::new()
 .route("/auth/update", post(update_fn))
 .route("/keys/generate", post(generate_key))
 .route("/keys/delete", post(delete_key))
+.route("/keys/update", post(update_key))
 .with_state(pool);
 
 

@@ -26,5 +26,6 @@ pub struct DeleteKeyRequest {
 pub struct UpdateKeyStats {
      pub user_id : u32,
      pub token : String,
-     pub plan : String
+     pub plan : Option<String>,
+     pub update_type : String
 }
