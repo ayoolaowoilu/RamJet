@@ -9,7 +9,9 @@ pub async fn generate_key(
     Json(payload):Json<CreateKeyRequest>
 )-> Json<KeyResponse> {
   
-  let mut key = String::from("rj_sktoken");
+  let mut key = String::from("rj_sktoken_");
+   key.push_str(&payload.region);
+   key.push_str("_");
    key.push_str(&generate_random_key(32));
 
   sqlx::query!("INSERT INTO secret_keys(user_id,name,_key,region,plan) VALUE(?,?,?,?,?)",
