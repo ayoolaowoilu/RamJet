@@ -1,198 +1,261 @@
-# Ramjet-auth Documentation
+# Ramjet-auth
 
-- ## Routes (users authentication)
+Authentication service for the Ramjet platform. Provides user registration, login, profile management, and account deletion with JWT-based session handling.
 
- ### POST /auth/login
+---
 
- this is for the login function
+## API Reference
 
-  * request :
- ```text 
-    ```json
+### Base URL
+    http://localhost:8080
 
-      {"email":"johndoe@gmail.com",
-        "password":"givebread123"
-      }
-    ```
- ```
+### Authentication
+All protected endpoints require a session token in the request body (see /auth/profile).
 
- * response :
- ```text 
-    ```json
+---
 
-      {"message":"Login is successful" ,
-        "status_code":200 // or 401 if password is not correct,
-         "token":Some(token) // or None is password aint correct
-      }
-    ```
- ```
+## Endpoints
 
+### POST /auth/login
+Authenticates an existing user and returns a session token.
 
- ### POST /auth/register
+**Request Body:**
 
-   * request :
- ```text 
-    ```json
+    {
+      "email": "johndoe@gmail.com",
+      "password": "givebread123"
+    }
 
-      {"email":"johndoe@gmail.com",
-        "password":"givebread123",
-        "name:"John doe"
-      }
-    ```
- ```
+**Response (200 OK):**
 
- * response :
- ```text 
-    ```json
+    {
+      "message": "Login is successful",
+      "status_code": 200,
+      "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
 
-      {"message":"Login is successful" , // or email or name is already taken  
-        "status_code":200 , // or 401
-         "token":Some(token) ,
-      }
-    ```
- ```
+**Error Response (401 Unauthorized):**
+
+    {
+      "message": "Invalid credentials",
+      "status_code": 401,
+      "token": null
+    }
+
+---
+
+### POST /auth/register
+Registers a new user account.
+
+**Request Body:**
+
+    {
+      "email": "johndoe@gmail.com",
+      "password": "givebread123",
+      "name": "John Doe"
+    }
+
+**Response (201 Created):**
+
+    {
+      "message": "Registration successful",
+      "status_code": 201,
+      "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
+
+**Error Response (401 Conflict):**
+
+    {
+      "message": "Email or name is already taken",
+      "status_code": 401,
+      "token": null
+    }
+
+---
 
 ### POST /auth/update
+Updates user profile information. Only provided fields are updated.
 
-  * request :
- ```text 
-    ```json
+**Request Body:**
 
-      {"email":"johndoe@gmail.com", // optional
-        "name":"givebread123", // optional
-        "id": 12345 // essential
-      }
-    ```
- ```
+    {
+      "id": 12345,
+      "email": "newemail@gmail.com",
+      "name": "New Name"
+    }
 
- * response :
- ```text 
-    ```json
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | u32 | Yes | User identifier |
+| email | string | No | New email address |
+| name | string | No | New display name |
 
-      {"message":"Data updated successfully" // or email or name is already taken  ,
-        "status_code":200  // or 401,
-         user:{
-              id:1234,
-              name:"john doe",
-              email:"johndoe@gmail.com",
-              password:"#randomhash",
-              created_at:TIMESTAMP,
-              updated_at:TIMESTAMP,
-              role:"normal"
-         },
-         updated:"email,name"
-      }
-    ```
- ```
+**Response (200 OK):**
 
- ### POST /auth/delete
+    {
+      "message": "Data updated successfully",
+      "status_code": 200,
+      "user": {
+        "id": 1234,
+        "name": "john doe",
+        "email": "johndoe@gmail.com",
+        "password": "#randomhash",
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-06-06T20:32:00Z",
+        "role": "normal"
+      },
+      "updated": "email,name"
+    }
 
-  * request :
- ```text 
-    ```json
+**Error Response (401 Conflict):**
 
-      {
-        "id": 12345 // essential
-      }
-    ```
- ```
+    {
+      "message": "Email or name is already taken",
+      "status_code": 401,
+      "user": null,
+      "updated": null
+    }
 
- * response :
- ```text 
-    ```json
+---
 
-      {"message":"Login is successful" // or email or name is already taken  ,
-        "status_code":200  // or 401,
-         "updated": "Deleted data successfully" ,
-      }
+### POST /auth/delete
+Permanently deletes a user account.
 
-    ```
- ```
+**Request Body:**
 
- ### POST /auth/profile
+    {
+      "id": 12345
+    }
 
-   * request :
- ```text 
-    ```json
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | u32 | Yes | User identifier |
 
-      {
-        token:"#Your session token" // essential
-      }
-    ```
- ```
+**Response (200 OK):**
 
- * response :
- ```text 
-    ```json
+    {
+      "message": "Deleted data successfully",
+      "status_code": 200,
+      "updated": "Deleted data successfully"
+    }
 
-     {
-              id:1234,
-              name:"john doe",
-              email:"johndoe@gmail.com",
-              password:"#randomhash",
-              created_at:TIMESTAMP,
-              updated_at:TIMESTAMP,
-              role:"normal"
-         }
+---
 
-    ```
- ```
+### POST /auth/profile
+Retrieves the authenticated user's profile data.
 
+**Request Body:**
 
- ### Rust types code
+    {
+      "token": "eyJhbGciOiJIUzI1NiIs..."
+    }
 
- ```text 
-   ```rust 
-   use serde::{Serialize, Deserialize};
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| token | string | Yes | Valid session token |
 
+**Response (200 OK):**
 
+    {
+      "id": 1234,
+      "name": "john doe",
+      "email": "johndoe@gmail.com",
+      "password": "#randomhash",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-06-06T20:32:00Z",
+      "role": "normal"
+    }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct User{
-  pub id:u32, 
-  pub email:String,
-  pub name:String,
-  pub password:String,
-  pub role:String,
-  pub created_at: String,
-  pub updated_at: String,
-}
+---
 
+## Data Models
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginRequest{
-    pub email:String,
-    pub password:String,
-}
+### User
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserRegisterRequest{
-    pub email:String,
-    pub name:String,
-    pub password:String,
-}
+    use serde::{Serialize, Deserialize};
 
+    /// Core user model representing a registered account
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct User {
+        pub id: u32,
+        pub email: String,
+        pub name: String,
+        pub password: String,
+        pub role: String,
+        pub created_at: String,
+        pub updated_at: String,
+    }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginResponse{
-    pub message:String,
-    pub status_code:u16,
-    pub token:String,
-}
+### Request Types
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserUpdateRequest{ 
-    pub email:Option<String>,
-    pub name:Option<String>,
-    pub id:u32
-}
+    /// Payload for user login requests
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserLoginRequest {
+        pub email: String,
+        pub password: String,
+    }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserUpdateResponse{
-    pub message:String,
-    pub status_code:u16,
-    pub user:Option<User>,
-     pub updated:String
-}
+    /// Payload for user registration requests
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserRegisterRequest {
+        pub email: String,
+        pub name: String,
+        pub password: String,
+    }
 
- ```
+    /// Payload for updating user profile information
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserUpdateRequest {
+        pub email: Option&lt;String&gt;,
+        pub name: Option&lt;String&gt;,
+        pub id: u32,
+    }
+
+    /// Payload for profile retrieval requests
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserProfileRequest {
+        pub token: String,
+    }
+
+### Response Types
+
+    /// Response returned after successful login or registration
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserLoginResponse {
+        pub message: String,
+        pub status_code: u16,
+        pub token: String,
+    }
+
+    /// Response returned after a profile update operation
+    #[derive(Serialize, Deserialize, Debug, Clone)]
+    pub struct UserUpdateResponse {
+        pub message: String,
+        pub status_code: u16,
+        pub user: Option&lt;User&gt;,
+        pub updated: String,
+    }
+
+---
+
+## Status Codes
+
+| Code | Meaning | Context |
+|------|---------|---------|
+| 200 | OK | Successful login, update, delete, or profile fetch |
+| 201 | Created | Successful registration |
+| 401 | Unauthorized | Invalid credentials, duplicate email/name, or missing token |
+
+---
+
+## Tech Stack
+
+- **Language:** Rust
+- **Serialization:** serde with JSON support
+- **Authentication:** JWT tokens
+
+---
+
+## License
+
+MIT
