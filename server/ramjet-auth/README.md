@@ -63,29 +63,29 @@ Registers a new user account.
       "status_code": 201,
       "token": "eyJhbGciOiJIUzI1NiIs..."
     }
-
-    ```
+```
 
 **Error Response (401 Conflict):**
-
+```json
     {
       "message": "Email or name is already taken",
       "status_code": 401,
       "token": null
     }
-
+```
 ---
 
 ### POST /auth/update
 Updates user profile information. Only provided fields are updated.
 
 **Request Body:**
-
+```json
     {
       "id": 12345,
       "email": "newemail@gmail.com",
       "name": "New Name"
     }
+```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -94,7 +94,7 @@ Updates user profile information. Only provided fields are updated.
 | name | string | No | New display name |
 
 **Response (200 OK):**
-
+```json
     {
       "message": "Data updated successfully",
       "status_code": 200,
@@ -109,56 +109,58 @@ Updates user profile information. Only provided fields are updated.
       },
       "updated": "email,name"
     }
-
+```
 **Error Response (401 Conflict):**
-
+```json
     {
       "message": "Email or name is already taken",
       "status_code": 401,
       "user": null,
       "updated": null
     }
-
+```
 ---
 
 ### POST /auth/delete
 Permanently deletes a user account.
 
 **Request Body:**
-
+```json
     {
       "id": 12345
     }
+```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | id | u32 | Yes | User identifier |
 
 **Response (200 OK):**
-
+```json
     {
       "message": "Deleted data successfully",
       "status_code": 200,
       "updated": "Deleted data successfully"
     }
-
+```
 ---
 
 ### POST /auth/profile
 Retrieves the authenticated user's profile data.
 
 **Request Body:**
-
+```json
     {
       "token": "eyJhbGciOiJIUzI1NiIs..."
     }
+```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | token | string | Yes | Valid session token |
 
 **Response (200 OK):**
-
+```json
     {
       "id": 1234,
       "name": "john doe",
