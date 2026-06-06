@@ -7,7 +7,7 @@ Authentication service for the Ramjet platform. Provides user registration, logi
 ## API Reference
 
 ### Base URL
-    http://localhost:8080
+    http://localhost:5140
 
 ### Authentication
 All protected endpoints require a session token in the request body (see /auth/profile).
@@ -20,27 +20,28 @@ All protected endpoints require a session token in the request body (see /auth/p
 Authenticates an existing user and returns a session token.
 
 **Request Body:**
-
+```json
     {
       "email": "johndoe@gmail.com",
       "password": "givebread123"
     }
-
+```
 **Response (200 OK):**
-
+```json
     {
       "message": "Login is successful",
       "status_code": 200,
       "token": "eyJhbGciOiJIUzI1NiIs..."
     }
-
+```
 **Error Response (401 Unauthorized):**
-
+```json
     {
       "message": "Invalid credentials",
       "status_code": 401,
       "token": null
     }
+ ```   
 
 ---
 
@@ -48,20 +49,22 @@ Authenticates an existing user and returns a session token.
 Registers a new user account.
 
 **Request Body:**
-
+```json
     {
       "email": "johndoe@gmail.com",
       "password": "givebread123",
       "name": "John Doe"
     }
-
+```
 **Response (201 Created):**
-
+```json
     {
       "message": "Registration successful",
       "status_code": 201,
       "token": "eyJhbGciOiJIUzI1NiIs..."
     }
+
+    ```
 
 **Error Response (401 Conflict):**
 
@@ -165,13 +168,14 @@ Retrieves the authenticated user's profile data.
       "updated_at": "2024-06-06T20:32:00Z",
       "role": "normal"
     }
-
+```
 ---
 
 ## Data Models
 
 ### User
 
+  ```rust
     use serde::{Serialize, Deserialize};
 
     /// Core user model representing a registered account
@@ -185,10 +189,10 @@ Retrieves the authenticated user's profile data.
         pub created_at: String,
         pub updated_at: String,
     }
-
+ ```
 ### Request Types
 
-    /// Payload for user login requests
+ ```rust   /// Payload for user login requests
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct UserLoginRequest {
         pub email: String,
@@ -235,7 +239,7 @@ Retrieves the authenticated user's profile data.
         pub user: Option&lt;User&gt;,
         pub updated: String,
     }
-
+```
 ---
 
 ## Status Codes
