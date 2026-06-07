@@ -1,3 +1,5 @@
+import { AlertCircle } from "lucide-react";
+
 interface InputProps {
   variant?: "default" | "outlined" | "filled" | "error";
   disabled?: boolean;
@@ -46,12 +48,12 @@ const Input: React.FC<InputProps> = ({
     lg: "text-lg py-3 px-5",
   };
 
-  const isError = variant === "error" || error;
+  const hasError = !!error || variant === "error";
 
   return (
     <div className={`flex flex-col gap-1 ${className || ""}`}>
       {label && (
-        <label className={`text-sm font-semibold ${isError ? "text-red-600" : "text-gray-700"}`}>
+        <label className={`text-sm font-semibold ${hasError ? "text-red-600" : "text-gray-700"}`}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -64,7 +66,7 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         required={required}
-  
+        onChange={(e) => onChange?.(e.target.value)}
         onBlur={onBlur}
         onFocus={onFocus}
         className={`
@@ -75,8 +77,12 @@ const Input: React.FC<InputProps> = ({
         `}
       />
       
-      {error && !variant.includes("error") && (
-        <span className="text-sm text-red-600 font-medium">{error}</span>
+      {/* Error text always at the bottom when error exists */}
+      {error && (
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <AlertCircle size={14} className="text-red-500 flex-shrink-0" />
+          <span className="text-sm text-red-600 font-medium">{error}</span>
+        </div>
       )}
     </div>
   );
