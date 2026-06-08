@@ -20,12 +20,14 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [rememberMe, setRememberMe] = useState(false)
 
   const validateEmail = (value: string): string | undefined => {
     if (!value) return "Email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Please enter a valid email address";
     return undefined;
   };
+
 
   const validatePassword = (value: string): string | undefined => {
     if (!value) return "Password is required";
@@ -84,8 +86,8 @@ export default function LoginPage() {
           return;
       }
 
-      
-      localStorage.setItem("token", response.token as string);
+
+      localStorage.setItem("token",response.token as string)
       window.location.href = "/dashboard";
 
     } catch {
@@ -156,7 +158,11 @@ export default function LoginPage() {
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded border-gray-300" />
+              <input type="checkbox" value={rememberMe ? 1 : 0} onChange={(e)=>{
+                    let event = e.target.checked
+                    console.log(event)
+                    setRememberMe(event)
+              }}  className="rounded border-gray-300" />
               <span className="text-gray-600">Remember me</span>
             </label>
             <a href="/forgot-password" className="text-orange-700 hover:text-orange-800 font-medium">
