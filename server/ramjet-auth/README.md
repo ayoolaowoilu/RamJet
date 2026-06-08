@@ -194,7 +194,7 @@ Retrieves the authenticated user's profile data.
  ```
 ### Request Types
 
- ```rust   /// Payload for user login requests
+ ```rust  
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct UserLoginRequest {
         pub email: String,
