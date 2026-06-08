@@ -222,9 +222,9 @@ Retrieves the authenticated user's profile data.
     pub struct UserProfileRequest {
         pub token: String,
     }
-
+```
 ### Response Types
-
+```rust
     /// Response returned after successful login or registration
     #[derive(Serialize, Deserialize, Debug, Clone)]
     pub struct UserLoginResponse {
