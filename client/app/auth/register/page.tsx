@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react";
-import Button from "@/app/components/layout/button";
-import Input from "@/app/components/layout/input";
-import RamjetLogo from "@/app/components/layout/logo";
+import Button from "@/app/components/ui/button";
+import Input from "@/app/components/ui/input";
+import RamjetLogo from "@/app/components/ui/logo";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Register } from "@/app/lib/fetchrequests";
 import { Create_session } from "@/app/lib/session";
