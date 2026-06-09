@@ -10,7 +10,7 @@ export type user = {
      updated_at:string
 }
 
-const base_url = process.env.BASE_URL;
+const base_url = "http://localhost:5140";
 
 export async function Create_session(token:string , session_type:"LATE" | "EARLY"){
      try {
@@ -21,15 +21,12 @@ export async function Create_session(token:string , session_type:"LATE" | "EARLY
       })
 
       const data = await response.json()
-
-      if(data.status_code !== 200){
-           throw new Error("Error Creating session try logging in again!")
-           
-      }
+    
 
       const session_id = Math.floor(Math.random() * 900000000);
       const expiry_date = Date.now() + 1000 * 60 * 60 * 24 * 5;
       const session_data = { ...data , session_id , expiry_date , session_type}
+      console.log(session_data)
       const encrypted_session_data = encrypt(JSON.stringify(session_data))
       
      if (session_type == "EARLY"){
@@ -39,7 +36,8 @@ export async function Create_session(token:string , session_type:"LATE" | "EARLY
      }
      
 
-     }catch {
+     }catch(error) {
+            console.log(error)
             throw new Error("Error Creating session try logging in again!")
      }
 }

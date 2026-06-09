@@ -1,6 +1,6 @@
 
 
-const base_ur = process.env.BASE_URL;
+const base_ur = "http://localhost:5140";
 export type login_request = {
         email :string
         password : string
@@ -18,21 +18,17 @@ export type login_response = {
     token:string | null
 }
 
-const fetch_function_generator = async (method:"POST" | "GET", path:string , body:any ) => { 
-    const res = await fetch(`${base_ur}${path}`,{
-           method:method,
-           headers:{"Content-Type":"application/json"},
-           body:JSON.stringify(body)
-    })
-
-    return await res.json()
-}
 
 export const  Login = async(data:login_request):Promise<login_response> => {
         try{
-            const resp = await fetch_function_generator("POST","/auth/login",data );
-           return resp;
-        }catch {
+            const resp = await fetch(`${base_ur}/auth/login`,{
+               method:"POST",
+               headers:{"Content-Type":"application/json"},
+               body:JSON.stringify(data)
+            })
+           return await resp.json();
+        }catch (error){
+           console.log(error)
            return {
              message:"An error occurred",
              status_code:500,
@@ -43,9 +39,14 @@ export const  Login = async(data:login_request):Promise<login_response> => {
 
 export const Register = async(data:register_request):Promise<login_response> => {
          try{
-           const resp = await fetch_function_generator("POST","/auth/register",data );
-           return resp;
-         }catch {
+         const resp = await fetch(`${base_ur}/auth/register`,{
+               method:"POST",
+               headers:{"Content-Type":"application/json"},
+               body:JSON.stringify(data)
+            })
+           return await resp.json();
+         }catch (error) {
+           console.log(error)
               return {
              message:"An error occurred",
              status_code:500,

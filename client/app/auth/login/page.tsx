@@ -6,6 +6,8 @@ import Input from "@/app/components/layout/input";
 import RamjetLogo from "@/app/components/layout/logo";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Login } from "@/app/lib/fetchrequests";
+import { Create_session } from "@/app/lib/session";
+import { useSearchParams } from "next/navigation";
 
 interface FormErrors {
   email?: string;
@@ -14,6 +16,8 @@ interface FormErrors {
 }
 
 export default function LoginPage() {
+  const searchparams = useSearchParams()
+  const redirect = searchparams.get("redir")
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -68,12 +72,12 @@ export default function LoginPage() {
     setTouched({ email: true, password: true });
 
     const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    // const passwordError = validatePassword(password);
 
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
-      return;
-    }
+    // if (emailError || passwordError) {
+    //   setErrors({ email: emailError, password: passwordError });
+    //   return;
+    // }
 
     setIsLoading(true);
     setErrors({});
@@ -86,11 +90,14 @@ export default function LoginPage() {
           return;
       }
 
+    
+   await Create_session(response.token as string,rememberMe ? "LATE" : "EARLY" )
+     
+     window.location.href = redirect || "/dashboard"
 
-      localStorage.setItem("token",response.token as string)
-      window.location.href = "/dashboard";
 
-    } catch {
+    } catch(error) {
+        console.log(error)
       setErrors({ general: "Network error. Please try again." });
     } finally {
       setIsLoading(false);
@@ -102,7 +109,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md flex flex-col items-center gap-6">
         
         {/* Logo */}
-        <RamjetLogo size="lg" animated={false} />
+        <RamjetLogo size="lg" animated={true} />
 
         {/* Header */}
         <div className="text-center space-y-2">
@@ -182,7 +189,7 @@ export default function LoginPage() {
 
         <p className="text-sm text-gray-500">
           Don't have an account?{" "}
-          <a href="/register" className="text-orange-700 hover:text-orange-800 font-medium">
+          <a href="/auth/register" className="text-orange-700 hover:text-orange-800 font-medium">
             Create one
           </a>
         </p>
